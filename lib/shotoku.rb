@@ -1,5 +1,7 @@
 require "shotoku/version"
 
 module Shotoku
-  # Your code goes here...
 end
+
+require "shotoku/cli"
+require "shotoku/worker/app"
