@@ -45,6 +45,7 @@ module Shotoku
 
 
     def complete!(exitstatus: nil, termsig: nil, exception: nil)
+      raise 'already completed (possible bug)' if completed?
       @exitstatus = exitstatus
       @termsig = termsig
       @exception = exception
