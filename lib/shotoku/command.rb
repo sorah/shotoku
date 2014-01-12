@@ -6,9 +6,10 @@ module Shotoku
       @listeners_mutex = Mutex.new
       @exitstatus, @termsig = nil, nil
       @stdout, @stderr = '', ''
+      @exception = nil
     end
 
-    attr_reader :command, :exitstatus, :termsig, :stdout, :stderr
+    attr_reader :command, :exitstatus, :termsig, :stdout, :stderr, :exception
 
     alias script command
 
@@ -26,20 +27,27 @@ module Shotoku
     end
 
     def completed?
-      !!(termsig || exitstatus)
+      !!(termsig || exitstatus || exception)
     end
 
     def signaled?
       !!termsig
     end
 
+    def exception?
+      !!exception
+    end
+
+
     def success?
       exitstatus && exitstatus.zero?
     end
 
-    def complete!(exitstatus: nil, termsig: nil)
+
+    def complete!(exitstatus: nil, termsig: nil, exception: nil)
       @exitstatus = exitstatus
       @termsig = termsig
+      @exception = exception
       @listeners_mutex.synchronize {
         r = @listeners.dup
         @listeners.clear

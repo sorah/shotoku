@@ -33,12 +33,18 @@ describe Shotoku::Command do
     specify { expect(subject).to_not be_exited }
     specify { expect(subject).to_not be_signaled }
     specify { expect(subject).to_not be_success }
+    specify { expect(subject).to_not be_exception }
 
     context "when completed" do
       let(:exitstatus) { nil }
       let(:termsig) { nil }
+      let(:exception) { nil }
 
-      before { subject.complete!(exitstatus: exitstatus, termsig: termsig) }
+      before {
+        subject.complete!(exitstatus: exitstatus,
+                          termsig: termsig,
+                          exception: exception)
+      }
 
       context "with success exitstatus" do
         let(:exitstatus) { 0 }
@@ -47,6 +53,7 @@ describe Shotoku::Command do
         specify { expect(subject).to be_exited }
         specify { expect(subject).to_not be_signaled }
         specify { expect(subject).to be_success }
+        specify { expect(subject).to_not be_exception }
       end
 
       context "with failure exitstatus" do
@@ -56,6 +63,7 @@ describe Shotoku::Command do
         specify { expect(subject).to be_exited }
         specify { expect(subject).to_not be_signaled }
         specify { expect(subject).to_not be_success }
+        specify { expect(subject).to_not be_exception }
       end
 
       context "with termsig" do
@@ -65,7 +73,20 @@ describe Shotoku::Command do
         specify { expect(subject).to_not be_exited }
         specify { expect(subject).to be_signaled }
         specify { expect(subject).to_not be_success }
+        specify { expect(subject).to_not be_exception }
       end
+
+      context "with exception" do
+        let(:exception) { Exception.new }
+
+        specify { expect(subject).to be_completed }
+        specify { expect(subject).to_not be_exited }
+        specify { expect(subject).to_not be_signaled }
+        specify { expect(subject).to_not be_success }
+        specify { expect(subject).to be_exception }
+      end
+    end
+  end
     end
   end
 end
