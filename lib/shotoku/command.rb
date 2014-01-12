@@ -4,8 +4,13 @@ module Shotoku
 
     def initialize(command)
       @command = command
-      @listeners = []
-      @listeners_mutex = Mutex.new
+
+      @waiting_threads = []
+      @waiting_threads_mutex = Mutex.new
+      @output_listeners = []
+      @stdout_listeners = []
+      @stderr_listeners = []
+
       @exitstatus, @termsig = nil, nil
       @stdout, @stderr = '', ''
       @exception = nil
@@ -21,8 +26,8 @@ module Shotoku
     def wait
       return if completed?
 
-      @listeners_mutex.synchronize {
-        @listeners << Thread.current
+      @waiting_threads_mutex.synchronize {
+        @waiting_threads << Thread.current
       }
       sleep
     end
@@ -69,14 +74,26 @@ module Shotoku
       success?
     end
 
+    def on_stdout(&block)
+      @stdout_listeners << block
+    end
+
+    def on_stderr(&block)
+      @stderr_listeners << block
+    end
+
+    def on_output(&block)
+      @output_listeners << block
+    end
+
     def complete!(exitstatus: nil, termsig: nil, exception: nil)
       raise 'already completed (possible bug)' if completed?
       @exitstatus = exitstatus
       @termsig = termsig
       @exception = exception
-      @listeners_mutex.synchronize {
-        r = @listeners.dup
-        @listeners.clear
+      @waiting_threads_mutex.synchronize {
+        r = @waiting_threads.dup
+        @waiting_threads.clear
         r
       }.each(&:wakeup)
     end
@@ -87,6 +104,20 @@ module Shotoku
 
     def eof_handler(&block)
       @eof_handler = block
+    end
+
+    def add_stdout(string)
+      @stdout += string
+      @output_listeners.each { |_| _[string, :out] }
+      @stdout_listeners.each { |_| _[string] }
+      self
+    end
+
+    def add_stderr(string)
+      @stderr += string
+      @output_listeners.each { |_| _[string, :err] }
+      @stderr_listeners.each { |_| _[string] }
+      self
     end
   end
 end

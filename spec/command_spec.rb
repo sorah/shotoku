@@ -132,6 +132,37 @@ describe Shotoku::Command do
     end
   end
 
+  describe "#on_output" do
+    it "is called when output happened" do
+      buf = []
+      subject.on_output { |*args| buf << args }
+      expect {
+        subject.add_stdout('out')
+        subject.add_stderr('err')
+      }.to change { buf }.from([]).to([['out', :out], ['err', :err]])
+    end
+  end
+
+  describe "#on_stdout" do
+    it "is called when stdout happened" do
+      buf = nil
+      subject.on_stdout { |arg| buf = arg }
+      expect {
+        subject.add_stdout('out')
+      }.to change { buf }.from(nil).to('out')
+    end
+  end
+
+  describe "#on_stderr" do
+    it "is called when stderr happened" do
+      buf = nil
+      subject.on_stderr { |arg| buf = arg }
+      expect {
+        subject.add_stderr('out')
+      }.to change { buf }.from(nil).to('out')
+    end
+  end
+
   describe "#eof!" do
     it "calls handler" do
       a = false
