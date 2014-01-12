@@ -7,6 +7,9 @@ module Shotoku
       @exitstatus, @termsig = nil, nil
       @stdout, @stderr = '', ''
       @exception = nil
+
+      @send_handler = proc {}
+      @eof_handler = proc {}
     end
 
     attr_reader :command, :exitstatus, :termsig, :stdout, :stderr, :exception
@@ -38,11 +41,19 @@ module Shotoku
       !!exception
     end
 
-
     def success?
       exitstatus && exitstatus.zero?
     end
 
+    def send(*strings)
+      strings.each do |str|
+        @send_handler.call str
+      end
+    end
+
+    def eof!
+      @eof_handler.call; nil
+    end
 
     def complete!(exitstatus: nil, termsig: nil, exception: nil)
       raise 'already completed (possible bug)' if completed?
@@ -54,6 +65,14 @@ module Shotoku
         @listeners.clear
         r
       }.each(&:wakeup)
+    end
+
+    def send_handler(&block)
+      @send_handler = block
+    end
+
+    def eof_handler(&block)
+      @eof_handler = block
     end
   end
 end

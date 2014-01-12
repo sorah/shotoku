@@ -87,6 +87,20 @@ describe Shotoku::Command do
       end
     end
   end
+
+  describe "#eof!" do
+    it "calls handler" do
+      a = false
+      subject.eof_handler { a = true }
+      expect { subject.eof! }.to change { a }.from(false).to(true)
+    end
+  end
+
+  describe "#send" do
+    it "calls handler" do
+      a = nil
+      subject.send_handler { |str| a = str }
+      expect { subject.send('foo') }.to change { a }.from(nil).to('foo')
     end
   end
 end
