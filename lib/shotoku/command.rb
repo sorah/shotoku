@@ -14,16 +14,12 @@ module Shotoku
     alias script command
 
     def wait
-      unless completed?
-        @listeners_mutex.synchronize {
-          @listeners << Thread.current
-        }
-        sleep
-      end
-    end
+      return if completed?
 
-    def exited?
-      !!exitstatus
+      @listeners_mutex.synchronize {
+        @listeners << Thread.current
+      }
+      sleep
     end
 
     def completed?
@@ -32,6 +28,10 @@ module Shotoku
 
     def signaled?
       !!termsig
+    end
+
+    def exited?
+      !!exitstatus
     end
 
     def exception?
