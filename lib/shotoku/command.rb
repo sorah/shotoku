@@ -42,7 +42,7 @@ module Shotoku
     end
 
     def success?
-      exitstatus && exitstatus.zero?
+      !!(!exception && !termsig && exitstatus && exitstatus.zero?)
     end
 
     def send(*strings)
