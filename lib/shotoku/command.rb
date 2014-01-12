@@ -1,5 +1,7 @@
 module Shotoku
   class Command
+    class CommandFailed < Exception; end
+
     def initialize(command)
       @command = command
       @listeners = []
@@ -53,6 +55,18 @@ module Shotoku
 
     def eof!
       @eof_handler.call; nil
+    end
+
+    def value
+      wait
+      raise exception if exception?
+      unless success?
+        raise CommandFailed, "Command failed (" \
+                             "#{signaled? ? "signal=#{termsig} " : nil}" \
+                             "#{exited? ? "status=#{exitstatus}" : nil}" \
+                             "): #{script.inspect}"
+      end
+      success?
     end
 
     def complete!(exitstatus: nil, termsig: nil, exception: nil)

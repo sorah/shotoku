@@ -88,6 +88,50 @@ describe Shotoku::Command do
     end
   end
 
+  describe "#value" do
+    let(:exitstatus) { nil }
+    let(:termsig) { nil }
+    let(:exception) { nil }
+
+    before {
+      subject.complete!(exitstatus: exitstatus,
+                        termsig: termsig,
+                        exception: exception)
+    }
+
+    context "with exception" do
+      let(:exception) { Exception.new('test') }
+
+      specify {
+        expect { subject.value }.to raise_error(exception)
+      }
+    end
+
+    context "with termsig" do
+      let(:termsig) { 9 }
+
+      specify {
+        expect { subject.value }.to raise_error(Shotoku::Command::CommandFailed)
+      }
+    end
+
+    context "with unsuccess exitstatus" do
+      let(:exitstatus) { 1 }
+
+      specify {
+        expect { subject.value }.to raise_error(Shotoku::Command::CommandFailed)
+      }
+    end
+
+    context "with success exitstatus" do
+      let(:exitstatus) { 0 }
+
+      specify {
+        expect { subject.value }.to_not raise_error
+      }
+    end
+  end
+
   describe "#eof!" do
     it "calls handler" do
       a = false
