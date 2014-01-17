@@ -2,7 +2,8 @@ require 'spec_helper'
 require 'shotoku/command'
 
 describe Shotoku::Command do
-  subject { described_class.new('echo hi') }
+
+  subject(:command) { described_class.new('echo hi') }
 
   describe "#wait" do
     it "waits until it completes" do
@@ -178,4 +179,41 @@ describe Shotoku::Command do
       expect { subject.send('foo') }.to change { a }.from(nil).to('foo')
     end
   end
+
+  describe "#signal_value" do
+    let(:termsig) { nil }
+    before { command.complete!(termsig: termsig) }
+    subject { command.signal_value }
+
+    it { should be_nil }
+
+    context "with String" do
+      let(:termsig) { 'KILL' }
+      it { should eq 9 }
+    end
+
+    context "with Integer" do
+      let(:termsig) { 9 }
+      it { should eq 9 }
+    end
+  end
+
+  describe "#signal_name" do
+    let(:termsig) { nil }
+    before { command.complete!(termsig: termsig) }
+    subject { command.signal_name }
+
+    it { should be_nil }
+
+    context "with String" do
+      let(:termsig) { 'KILL' }
+      it { should eq 'KILL' }
+    end
+
+    context "with Integer" do
+      let(:termsig) { 9 }
+      it { should eq 'KILL' }
+    end
+  end
+
 end

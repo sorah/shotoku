@@ -32,6 +32,29 @@ module Shotoku
       sleep
     end
 
+    def signal_name
+      case termsig
+      when String
+        termsig
+      when Integer
+        Signal.list.find{ |k,v| v == termsig }.first
+      else
+        nil
+      end
+    end
+
+
+    def signal_value
+      case termsig
+      when String
+        Signal.list[termsig]
+      when Integer
+        termsig
+      else
+        nil
+      end
+    end
+
     def completed?
       !!(termsig || exitstatus || exception)
     end
