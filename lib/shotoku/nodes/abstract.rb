@@ -69,7 +69,7 @@ module Shotoku
           begin
             _execute(command)
           rescue Exception => e
-            command.complete!(exception: e) unless command.complete?
+            command.complete!(exception: e) unless command.completed?
           end
         end
 
