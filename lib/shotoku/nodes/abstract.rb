@@ -22,11 +22,11 @@ module Shotoku
         raise NotImplementedError
       end
 
-      def upload(local, remote)
+      def upload(local, remote, options={})
         raise NotImplementedError
       end
 
-      def download(local, remote)
+      def download(remote, local, options={})
         raise NotImplementedError
       end
 
