@@ -77,7 +77,7 @@ module Shotoku
 
     def send(*strings)
       strings.each do |str|
-        @send_handler.call str
+        @send_handler.call str.to_s
       end
     end
 
