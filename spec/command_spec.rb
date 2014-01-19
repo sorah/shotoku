@@ -164,6 +164,16 @@ describe Shotoku::Command do
     end
   end
 
+  describe "#on_complete" do
+    it "is called when the execution completed" do
+      flag = false
+      subject.on_complete { |arg| flag = true }
+      expect {
+        subject.complete!(exitstatus: 0)
+      }.to change { flag }.from(false).to(true)
+    end
+  end
+
   describe "#eof!" do
     it "calls handler" do
       a = false

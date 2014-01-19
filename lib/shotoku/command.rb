@@ -10,6 +10,7 @@ module Shotoku
       @output_listeners = []
       @stdout_listeners = []
       @stderr_listeners = []
+      @complete_listeners = []
 
       @exitstatus, @termsig = nil, nil
       @stdout, @stderr = '', ''
@@ -109,6 +110,10 @@ module Shotoku
       @output_listeners << block
     end
 
+    def on_complete(&block)
+      @complete_listeners << block
+    end
+
     def complete!(exitstatus: nil, termsig: nil, exception: nil)
       raise 'already completed (possible bug)' if completed?
       @exitstatus = exitstatus
@@ -119,6 +124,7 @@ module Shotoku
         @waiting_threads.clear
         r
       }.each(&:wakeup)
+      @complete_listeners.each(&:call)
     end
 
     def send_handler(&block)
