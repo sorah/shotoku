@@ -100,18 +100,22 @@ module Shotoku
 
     def on_stdout(&block)
       @stdout_listeners << block
+      self
     end
 
     def on_stderr(&block)
       @stderr_listeners << block
+      self
     end
 
     def on_output(&block)
       @output_listeners << block
+      self
     end
 
     def on_complete(&block)
       @complete_listeners << block
+      self
     end
 
     def complete!(exitstatus: nil, termsig: nil, exception: nil)
@@ -125,6 +129,7 @@ module Shotoku
         r
       }.each(&:wakeup)
       @complete_listeners.each(&:call)
+      self
     end
 
     def send_handler(&block)
