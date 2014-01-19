@@ -63,6 +63,8 @@ module Shotoku
         EOF
         command = Command.new(script)
  
+        yield command if block_given?
+
         th = Thread.new do
           begin
             _execute(command)
@@ -70,8 +72,6 @@ module Shotoku
             command.complete!(exception: e) unless command.complete?
           end
         end
-
-        yield command if block_given?
 
         command.wait unless async
         command.value if !async && error_on_failure && !command.success?
